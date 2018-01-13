@@ -2,16 +2,23 @@ package com.mastering.jackson.tutorial.one;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mastering.jackson.tutorial.model.Category;
+import com.mastering.jackson.tutorial.model.Conference;
 import com.mastering.jackson.tutorial.model.Customer;
 import com.mastering.jackson.tutorial.model.Framework;
 import com.mastering.jackson.tutorial.model.JavaScript;
 import com.mastering.jackson.tutorial.model.Language;
 import com.mastering.jackson.tutorial.model.Tutorial;
+import com.mastering.jackson.tutorial.model.VideoCourse;
 
 public class SimpleSerializationTest {
 
@@ -104,5 +111,42 @@ public class SimpleSerializationTest {
 		System.out.println(prettyJson);		
 	}
 	
+	@Test
+	public void shouldSerializeTheJSONObjectWithARootName() throws Exception {
+		VideoCourse videoCourse = new VideoCourse(1L, "Java Jackson Framework", new Category("Java"));
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		String prettyJson = mapper.writeValueAsString(videoCourse);
+		
+		System.out.println(prettyJson);
+	}
+
+	@Test
+	public void shouldSerializeWithACustomDatePattern() throws Exception {
+		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(conference);
+		
+		System.out.println(prettyJson);		
+	}
+	
+	@Test
+	public void shouldSerializeAHashMapObjectIntoAJson() throws Exception {
+		Map<String, String> presentations = new HashMap<>();
+		presentations.put("Java Framework", "JUnit 5 - New Architecture");
+		presentations.put("Java Language", "Java 9 - Working with Modules");
+		presentations.put("JVM", "How to use GC in a smart way");
+		
+		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+		conference.setPresentations(presentations);
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(conference);
+		
+		System.out.println(prettyJson);		
+	}
 	
 }

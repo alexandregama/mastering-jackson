@@ -389,3 +389,277 @@ The output will print out the following result:
 ```json
 "{'custom_id\":1,\"custom_name\":1 - Alexandre Gama}"
 ```
+
+## Serializing a JSON Object with a Root
+
+Let's create our scenario:
+
+```java
+public class VideoCourse {
+
+	private Long id;
+	
+	private String title;
+	
+	private Category category;
+
+	public VideoCourse(Long id, String title, Category category) {
+		this.id = id;
+		this.title = title;
+		this.category = category;
+	}
+
+}
+```
+
+And the Category class:
+
+```java
+public class Category {
+	
+	private String name;
+
+	public Category(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}
+```
+
+The simple test:
+
+```java
+	@Test
+	public void shouldSerializeTheJSONObjectWithARootName() throws Exception {
+		VideoCourse videoCourse = new VideoCourse(1L, "Java Jackson Framework", new Category("Java"));
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(videoCourse);
+		
+		System.out.println(prettyJson);
+	}
+```
+
+And the result:
+
+```json
+{
+  "id" : 1,
+  "title" : "Java Jackson Framework",
+  "category" : {
+    "name" : "Java"
+  }
+}
+```
+
+We should use the @JsonRootName annotation:
+
+```java
+@JsonRootName(value = "video_course")
+public class VideoCourse {
+}
+```
+
+But before print it, we must change our test:
+
+```java
+ObjectMapper mapper = new ObjectMapper();
+mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+String prettyJson = mapper.writeValueAsString(videoCourse);
+```
+
+And the final result:
+
+```json
+{
+  "video_course" : {
+    "id" : 1,
+    "title" : "Java Jackson Framework",
+    "category" : {
+      "name" : "Java"
+    }
+  }
+}
+```
+
+## JSON Custom Serialization with Jackson
+
+```java
+public class Conference {
+
+	private Long id;
+	
+	private String name;
+	
+	private LocalDate date;
+
+	public Conference(Long id, String name, LocalDate date) {
+		this.id = id;
+		this.name = name;
+		this.date = date;
+	}
+
+}
+```
+
+A simple test:
+
+```java
+	@Test
+	public void shouldSerializeWithACustomDatePattern() throws Exception {
+		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String prettyJson = mapper.writeValueAsString(conference);
+		
+		System.out.println(prettyJson);		
+	}
+```
+
+The result will be:
+
+```json
+{
+  "id" : 10,
+  "name" : "JavaOne",
+  "date" : {
+    "year" : 2018,
+    "month" : "NOVEMBER",
+    "chronology" : {
+      "id" : "ISO",
+      "calendarType" : "iso8601"
+    },
+    "era" : "CE",
+    "monthValue" : 11,
+    "dayOfMonth" : 20,
+    "dayOfYear" : 324,
+    "dayOfWeek" : "TUESDAY",
+    "leapYear" : false
+  }
+}
+```
+
+Creating the **CustomDateSerializer**
+
+```java
+public class CustomDateSerializer extends StdSerializer<LocalDate> {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	
+	public CustomDateSerializer() {
+		this(null, false);
+	}
+
+	protected CustomDateSerializer(Class<?> t, boolean dummy) {
+		super(t, dummy);
+	}
+
+	@Override
+	public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+		
+		String formattedDate = formatter.format(value);
+		
+		gen.writeString(formattedDate);
+	}
+
+}
+```
+
+Let's use the new Custom Serializer
+
+```java
+public class Conference {
+
+	@JsonSerialize(using = CustomDateSerializer.class)
+	private LocalDate date;
+
+}
+```
+
+The result will be:
+
+```json
+2018-11-20
+{
+  "id" : 10,
+  "name" : "JavaOne",
+  "date" : "2018-11-20"
+}
+```
+
+## Serializing HashMap into JSON Objects with Jackson
+
+```java
+public class Conference {
+
+	private Long id;
+	
+	private String name;
+	
+	private Map<String, String> presentations = new HashMap<>();
+	
+}
+```
+
+The simple test:
+
+```java
+	@Test
+	public void shouldSerializeAHashMapObjectIntoAJson() throws Exception {
+		Map<String, String> presentations = new HashMap<>();
+		presentations.put("Java Framework", "JUnit 5 - New Architecture");
+		presentations.put("Java Language", "Java 9 - Working with Modules");
+		presentations.put("JVM", "How to use GC in a smart way");
+		
+		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+		conference.setPresentations(presentations);
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(conference);
+		
+		System.out.println(prettyJson);		
+	}
+```
+
+And the result:
+
+```json
+{
+  "id" : 10,
+  "name" : "JavaOne",
+  "presentations" : {
+    "JVM" : "How to use GC in a smart way",
+    "Java Framework" : "JUnit 5 - New Architecture",
+    "Java Language" : "Java 9 - Working with Modules"
+  },
+  "date" : "2018-11-20"
+}
+```
+
+Jackson will serialize a Java Map by default :)
+
+But if we want to have each key and value as a line in the main JSON?
+
+```json
+{
+  "id" : 10,
+  "name" : "JavaOne",
+  "date" : "2018-11-20",
+  "JVM" : "How to use GC in a smart way",
+  "Java Framework" : "JUnit 5 - New Architecture",
+  "Java Language" : "Java 9 - Working with Modules"
+}
+```
+
+We just need to use the @JsonAnyGetter annotation
+
