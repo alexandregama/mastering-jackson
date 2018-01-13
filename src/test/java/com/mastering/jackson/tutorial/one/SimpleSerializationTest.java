@@ -7,7 +7,9 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mastering.jackson.tutorial.model.Customer;
 import com.mastering.jackson.tutorial.model.Framework;
+import com.mastering.jackson.tutorial.model.JavaScript;
 import com.mastering.jackson.tutorial.model.Language;
 import com.mastering.jackson.tutorial.model.Tutorial;
 
@@ -69,5 +71,38 @@ public class SimpleSerializationTest {
 		
 		System.out.println(prettyJson);
 	}
+	
+	@Test
+	public void shouldOrderJSONPropertyAccordingToTheJacksonConfiguration() throws Exception {
+		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(tutorial);
+		
+		System.out.println(prettyJson);		
+	}
+	
+	@Test
+	public void shouldSerializeThePropertyExactlyAsItIs() throws Exception {
+		JavaScript javascript = new JavaScript("JavaScript", 
+				"function name() {return \"JavaScript Jasmine Framework\"}", 
+				"function name() {return \"JavaScript Jasmine Framework\"}");
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(javascript);
+		
+		System.out.println(prettyJson);
+	}
+	
+	@Test
+	public void shouldSerializeTheJavaObjectWithACustomJSONContent() throws Exception {
+		Customer customer = new Customer(1l, "Alexandre Gama");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String prettyJson = mapper.writeValueAsString(customer);
+		
+		System.out.println(prettyJson);		
+	}
+	
 	
 }

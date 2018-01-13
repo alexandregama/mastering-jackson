@@ -270,3 +270,122 @@ Everything is fine:
 
 ## Ordering Properties in JSON with Jackson Serialization
 
+We can achieve this by using the @JsonPropertyOrder
+
+```java
+@JsonPropertyOrder({"title", "id", "language"})
+public class Tutorial {
+
+}
+```
+
+The result will be:
+
+```json
+{
+  "title" : "CDI - How to use Decorators",
+  "id" : 1,
+  "usedLanguage" : "Java"
+}
+```
+
+## Serializing the Raw Content with Jackson
+
+Sometimes we have a content that should be serialized with its raw value. Getting a JavaScript content as an example:
+
+```java
+public class JavaScript {
+
+	private String name;
+	
+	private String content;
+	
+	@JsonRawValue
+	private String rawContent;
+
+}
+```
+
+The test will be:
+
+```java
+	@Test
+	public void shouldSerializeThePropertyExactlyAsItIs() throws Exception {
+		JavaScript javascript = new JavaScript("JavaScript", 
+				"function name() {return \"JavaScript Jasmine Framework\"}", 
+				"function name() {return \"JavaScript Jasmine Framework\"}");
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(javascript);
+		
+		System.out.println(prettyJson);
+	}
+```
+
+And the output will be:
+
+```json
+{
+  "name" : "JavaScript",
+  "content" : "function name() {return \"JavaScript Jasmine Framework\"}",
+  "rawContent" : function name() {return "JavaScript Jasmine Framework"}
+}
+```
+
+Notice that the raw value was kept as the original value. Keep in mind that this annotation could generate an invalid JSON
+
+## Serializing The Entire Object with a Custom Value with Jackson
+
+```java
+public class Customer {
+
+	private Long id;
+	
+	private String name;
+
+	public Customer(Long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+	
+}
+```
+
+The test:
+
+```java
+	@Test
+	public void shouldSerializeTheJavaObjectWithACustomJSONContent() throws Exception {
+		Customer customer = new Customer(1l, "Alexandre Gama");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String prettyJson = mapper.writeValueAsString(customer);
+		
+		System.out.println(prettyJson);		
+	}
+```
+
+The result will be:
+
+```json
+{"id":1,"name":"Alexandre Gama"}
+```
+
+But if we want to change the content that will be returned by Jackson. We should use the @JsonValue annotation:
+
+```java
+public class Customer {
+
+	@JsonValue
+	public String customContent() {
+		return "{\"custom_id\":" + this.id +",\"custom_name\":" + this.id + " - " + this.name +"}";
+	}
+
+}
+```
+
+The output will print out the following result:
+
+```json
+"{'custom_id\":1,\"custom_name\":1 - Alexandre Gama}"
+```

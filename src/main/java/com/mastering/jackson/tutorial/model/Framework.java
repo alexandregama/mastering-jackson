@@ -1,9 +1,12 @@
 package com.mastering.jackson.tutorial.model;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
 public class Framework {
 
 	private Long id;
 	
+	@JsonRawValue
 	private String name;
 	
 	private Language language;

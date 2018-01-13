@@ -1,7 +1,8 @@
 package com.mastering.jackson.tutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder({"title", "id", "language"})
 public class Tutorial {
 
 	private Long id;
@@ -38,7 +39,6 @@ public class Tutorial {
 		return language;
 	}
 
-	@JsonIgnore
 	public void setLanguage(String language) {
 		this.language = language;
 	}
