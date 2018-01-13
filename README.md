@@ -127,3 +127,146 @@ The output:
   "usedLanguage" : "Java"
 }
 ```
+
+We can change the getter method:
+
+```java
+@JsonGetter(value = "getAwesomeUsedLanguage")
+public String getUsedLanguage() {
+	return language;
+}
+```
+
+And the output:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators",
+  "getAwesomeUsedLanguage" : "Java"
+}
+```
+
+And if we remove the getter method?
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators"
+}
+```
+
+The output will not have the property in the JSON object.
+
+## Serializing the Java Object using Attributes
+
+We can achieve this goal by using the ```@JsonProperty```
+
+```java
+public class Tutorial {
+
+	@JsonProperty("best_Language")
+	private String language;
+
+	public String getUsedLanguage() {
+		return language;
+	}
+}
+```
+
+The output will be:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators",
+  "usedLanguage" : "Java",
+  "best_Language" : "Java"
+}
+```
+
+Hmm, sounds weird. Jackson will serialize either the Attribute and the getter method. We should **ignore** the getter method
+
+```java
+	@JsonIgnore
+	public String getUsedLanguage() {
+		return language;
+	}
+```
+
+Now the output:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators",
+  "usedLanguage" : "Java"
+}
+```
+
+Notice that you can use the @JsonIgnore in the getter method but also in the attribute
+
+```java
+public class Tutorial {
+
+	@JsonIgnore
+	private String language;
+
+}
+```
+
+## Trick Situation with @JsonIgnore
+
+```java
+public class Tutorial {
+
+	public String getLanguage() {
+		return language;
+	}
+
+	@JsonIgnore
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+}
+```
+
+The output will be:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators"
+}
+```
+
+But if we change the getter method:
+
+```java
+public class Tutorial {
+
+	public String getUsedLanguage() {
+		return language;
+	}
+
+	@JsonIgnore
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+}
+```
+
+Everything is fine:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators",
+  "usedLanguage" : "Java"
+}
+```
+
+## Ordering Properties in JSON with Jackson Serialization
+

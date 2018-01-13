@@ -1,5 +1,7 @@
 package com.mastering.jackson.tutorial.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Tutorial {
 
 	private Long id;
@@ -36,6 +38,7 @@ public class Tutorial {
 		return language;
 	}
 
+	@JsonIgnore
 	public void setLanguage(String language) {
 		this.language = language;
 	}
