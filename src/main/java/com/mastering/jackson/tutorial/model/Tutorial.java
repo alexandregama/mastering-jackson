@@ -1,14 +1,14 @@
 package com.mastering.jackson.tutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonPropertyOrder({"title", "id", "language"})
 public class Tutorial {
 
 	private Long id;
 	
 	private String title;
 	
+	@JsonProperty("my_language")
 	private String language;
 	
 	public Tutorial(Long id, String title, String language) {
@@ -16,8 +16,6 @@ public class Tutorial {
 		this.title = title;
 		this.language = language;
 	}
-
-	public Tutorial() {}
 
 	public Long getId() {
 		return id;

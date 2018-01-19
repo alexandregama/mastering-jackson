@@ -23,7 +23,7 @@ import com.mastering.jackson.tutorial.model.VideoCourse;
 public class SimpleSerializationTest {
 
 	@Test
-	public void shouldSerializeInASimpleWay() throws Exception {
+	public void shouldSerializeAnObjectIntoAJSON() throws Exception {
 		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
 		
 		ObjectMapper mapper = new ObjectMapper();

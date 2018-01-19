@@ -6,7 +6,6 @@ public class Framework {
 
 	private Long id;
 	
-	@JsonRawValue
 	private String name;
 	
 	private Language language;
