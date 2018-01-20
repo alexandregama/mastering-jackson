@@ -1,6 +1,27 @@
-# Jackson - The Complete Guide
+# Jackson - The Complete Guide in 15 Parts
 
-## Configuring Jackson with Maven
+## 1 - Intro to Jackson and Configuration with Maven
+
+**Jackson** in one of the most used Library in Java to parse objects into JSON. Actually Jackson ca be used to do really more than that as:
+
+- Data processing with many types such as Avro, XML and CSV
+- Data formatting
+- Data binding
+- Data streaming
+
+Each of these components has its own project. For example, to work with Jackson YAML, XML and Avro, you will find the following projects:
+
+- Jackson Data Format for XML in [GitHub](https://github.com/FasterXML/jackson-dataformat-xml)
+- Jackson Data Format Binary in [GitHub](https://github.com/FasterXML/jackson-dataformats-binary)
+- Jackson Data Format Text in [GitHub](https://github.com/FasterXML/jackson-dataformats-text)
+
+We have **3 main packages** in Jackson, that have its own projects also:
+
+- [Jackson Core](https://github.com/FasterXML/jackson-core) 
+
+This project defines the Streaming API with Parser and Generator abstractions used by Jackson Processor
+
+This Jackson core can be configured with Maven as bellow:
 
 ```xml 
 <dependency>
@@ -10,9 +31,42 @@
 </dependency>
 ```
 
-## 1 - Using a Simple Serialization with Jackson
+- [Jackson Annotations](https://github.com/FasterXML/jackson-annotations)
 
-Let's start by serializing a simple POJO object named **Tutorial**. With **serializing** I mean transform an object into a JSON using Jackson:
+Jackson has a special project to deal with Annotations. This project depends on Jackson Core project. 
+
+In this project we have the basic and more advanced annotations. To configure the Jackson Annotations project
+we just need to use the following Maven dependency:
+
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-annotations</artifactId>
+  <version>${jackson-annotations-version}</version>
+</dependency>
+```
+
+- [Jackson Data Binding](https://github.com/FasterXML/jackson-databind)
+
+This is a project that has a general **Data Binding** for Jackson and uses the project **Jackson Core**
+
+Notice that Jackson Data Binding can work with other types rather than just work with JSON.
+
+To use the Data Binding project we can just configure the Maven Dependency bellow:
+
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+  <version>${jackson.version}</version>
+</dependency>
+```
+
+This project uses the Jackson Core and Jackson Annotation projects but you don't need to worry about this dependencies, since Maven will download them for us : )
+
+## 2 - Using a Simple Serialization with Jackson
+
+Let's start by serializing a simple POJO object in Java named **Tutorial**. With **serializing** I mean transform a Java **object** into a **JSON** using Jackson:
 
 ```java
 public class Tutorial {
@@ -29,12 +83,11 @@ public class Tutorial {
 		this.language = language;
 	}
 
-	//the famous getters and setters here
-	
+	//the famous getters and setters here	
 }
 ```
 
-Our main goal is to **transform** a Tutorial object into a JSON like this:
+Our main goal is to **transform/parse** a Tutorial **object** into a **JSON** like this:
 
 ```json
 {
@@ -46,24 +99,26 @@ Our main goal is to **transform** a Tutorial object into a JSON like this:
 
 Great challenge, isn't it?
 
-Do to that we should use a class from Jackson called **ObjectMapper**. As you can see from the name, this object will map an object in Java to something, in our case to a JSON object.
+Do to that we should use a class from Jackson called **ObjectMapper**. As you can see from the name, this object will **map** an object in Java to something, in our case to a **JSON object**.
 
 This class has a method called **writeValueAsString()** that can receives an object as an argument and generate a JSON object as a String.
+
+![](maybe image here)
 
 Let's see the complete code in a Unit Test with JUnit : )
 
 ```java
-	@Test
-	public void shouldSerializeAnObjectIntoAJSON() throws Exception {
-		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writeValueAsString(tutorial);
-		
-		System.out.println(json);
-		
-		assertEquals("{\"id\":1,\"title\":\"CDI - How to use Decorators\",\"language\":\"Java\"}", json);
-	}
+@Test
+public void shouldSerializeAnObjectIntoAJSON() throws Exception {
+	Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+	
+	ObjectMapper mapper = new ObjectMapper();
+	String json = mapper.writeValueAsString(tutorial);
+	
+	System.out.println(json);
+	
+	assertEquals("{\"id\":1,\"title\":\"CDI - How to use Decorators\",\"language\":\"Java\"}", json);
+}
 ```
 
 Pretty simple, right? I just printed out the JSON object to have the JSON being validated easier than asserting it with the assertEquals() method. 
@@ -77,26 +132,27 @@ The output will be:
 Great! But notice that this JSON could be really huge and see it in just 1 one could be challenge. It's time to see a better way!
 
 
-## 2 - Printing a Pretty JSON with Jackson
+## 3 - Printing a Pretty JSON with Jackson
 
 To print a **pretty JSON** with Jackson we just need to use an object called **ObjectWriter** from Jackson.
+
 To have this class we should call the method **writerWithDefaultPrettyPrinter()** from the **ObjectMapper** class.
 
 The complete code will be:
 
 ```java
-	@Test
-	public void shouldSerializeWithAPrettyJsonBeingCreated() throws Exception {
-		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
-		
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(tutorial);
-		
-		System.out.println(prettyJson);
-	}
+@Test
+public void shouldSerializeWithAPrettyJsonBeingCreated() throws Exception {
+	Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+	
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(tutorial);
+	
+	System.out.println(prettyJson);
+}
 ```
 
-The output will be:
+If you run this code, the output will be:
 
 ```json
 {
@@ -106,13 +162,13 @@ The output will be:
 }
 ```
 
-Nice! 
+Nice! Now we have a pretty JSON being printed out!
 
-### Choosing to Print a Pretty JSON at Runtime
+#### Choosing to Print a Pretty JSON at Runtime
 
 Imagine that you have the situation:
 
-- Depending on a condition, you should print a **pretty** JSON or not, at Runtime!
+> Depending on a condition, you should print a **pretty** JSON or not, at Runtime!
 
 To reach this goal, we should **enable** the pretty printer in the **ObjectMapper** object by using the following code:
 
@@ -120,35 +176,37 @@ To reach this goal, we should **enable** the pretty printer in the **ObjectMappe
 mapper.enable(SerializationFeature.INDENT_OUTPUT);
 ```
 
+The method **enable()** allows us to enable a few features when generating/parsing a JSON.
+
 The complete code could be:
 
 ```java
-	@Test
-	public void shouldPrintAPrettyJsonAtRuntime() throws Exception {
-		boolean shouldPrintPretty = true;
-		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
-		
-		ObjectMapper mapper = new ObjectMapper();
-		if (shouldPrintPretty) {
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		}
-		String prettyJson = mapper.writeValueAsString(tutorial);
-		
-		System.out.println(prettyJson);
+@Test
+public void shouldPrintAPrettyJsonAtRuntime() throws Exception {
+	boolean shouldPrintPretty = true;
+	Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+	
+	ObjectMapper mapper = new ObjectMapper();
+	if (shouldPrintPretty) {
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 	}
+	String prettyJson = mapper.writeValueAsString(tutorial);
+	
+	System.out.println(prettyJson);
+}
 ```
 
 Just test the boolean variable **shouldPrintPretty** with true and false to see the result : )
 
-## 3 - Serializing Composed Java Objects with Jackson
+## 4 - Serializing Composed Java Objects with Jackson
 
 Java is an Object-Oriented Programming Language and one of the most used feature is **Object Composition**.
 
-How does Jackson handle object composition when it is serializing an Object to JSON?
+How does Jackson **handle object composition** when it is serializing an Object to JSON?
 
 Let's create 2 classes to represent **Frameworks** that belongs to a **Language**:
 
-The **Language** class:
+The **Language** class could be:
 
 ```java
 public class Language {
@@ -162,11 +220,11 @@ public class Language {
 		this.name = name;
 	}
 	
-	//getters and setters
+	//famous getters and setters
 }
 ```
 
-And the **Framework** class, composed by the **Language** class:
+And the **Framework** class, composed by the **Language** class could be as follows:
 
 ```java
 public class Framework {
@@ -190,19 +248,19 @@ public class Framework {
 Great! It's time to create the code to serialize a **Framework** object with Jackson to see the result:
 
 ```java
-	@Test
-	public void shouldSerializeComposeObjectsWithJackson() throws Exception {
-		Language java = new Language(1, "Java");
-		Framework spring = new Framework(1L, "Spring", java);
-		
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(spring);
-		
-		System.out.println(prettyJson);
-	}
+@Test
+public void shouldSerializeComposeObjectsWithJackson() throws Exception {
+	Language java = new Language(1, "Java");
+	Framework spring = new Framework(1L, "Spring", java);
+	
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(spring);
+	
+	System.out.println(prettyJson);
+}
 ```
 
-And the output will be:
+If you run this code, the output will be:
 
 ```json
 {
@@ -215,11 +273,11 @@ And the output will be:
 }
 ```
 
-Awesome! Jackson can serialize a composed object by default!
+Awesome! Jackson can serialize a composed object by default! Let's see how to change a few default behaviours in the next posts!  
 
-## 4 - Serializing Getter Methods to JSON 
+## 5 - Serializing Getter Methods to JSON 
 
-Let's change the **Tutorial** class and rename the getter method **getLanguage()** to **getUsedLanguage()**:
+Let's change the **Tutorial** class and rename the getter method **getLanguage()** to **getUsedLanguage()** to just see what happens:
 
 ```java
 public class Tutorial {
@@ -231,18 +289,18 @@ public class Tutorial {
 }
 ```
 
-Let's generate the JSON object with Jackson again:
+It's time to generate the JSON object with Jackson again:
 
 ```java
-	@Test
-	public void shouldSerializeGetterMethodsByDefault() throws Exception {
-		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
-		
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(tutorial);
-		
-		System.out.println(prettyJson);
-	}
+@Test
+public void shouldSerializeGetterMethodsByDefault() throws Exception {
+	Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+	
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(tutorial);
+	
+	System.out.println(prettyJson);
+}
 ```
 
 The output will be:
@@ -276,7 +334,11 @@ If you run the code, you'll have the new attribute name generated by Jackson:
 }
 ```
 
-And if we **remove** the getter method? How does Jackson generate the JSON object?
+#### Removing the Getter method to serialize the JSON Object
+
+if we **remove** the getter method? How does Jackson generate the JSON object if it is used to parse the Java object into a JSON?
+
+If you run the code without the **getLanguage()** method you'll have the following result:
 
 ```json
 {
@@ -285,15 +347,15 @@ And if we **remove** the getter method? How does Jackson generate the JSON objec
 }
 ```
 
-As you can see, the output will not have the property in the JSON object because, again, Jackson uses **getter** methods to serialize objects to JSON.
+As you can see, the JSON in the output **will not have** the property in the JSON object because, again, Jackson uses **getter** methods to serialize objects to JSON.
 
-But can we change this behavior? Of course!
+But can we change this behavior? Of course! Are you curious about how? Let's see the next Post!
 
-## 5 - Serializing the Java Object using Attributes
+## 6 - Serializing the Java Object into JSON using Attributes with Jackson
 
 Jackson uses **getter** methods by default to serialize objects into JSON! To change this default behavior we just need to use the ```@JsonProperty``` annotation:
 
-Let;s configure the **language** attribute to be used in the serialization and let's give it a **custom name**:
+Let's configure the **language** attribute to be used in the serialization and let's give it a **custom name**:
 
 ```java
 public class Tutorial {
@@ -307,7 +369,7 @@ public class Tutorial {
 }
 ```
 
-The output will be:
+If you run the code, the output will be:
 
 ```json
 {
@@ -318,7 +380,9 @@ The output will be:
 }
 ```
 
-Hmm, sounds weird. Jackson will serialize **either** the **attribute** and the **getter** method. We should **ignore** the getter method with the ```@JsonIgnore``` annotation:
+Hmm, sounds weird. Jackson will serialize **either** the **attribute** and the **getter** method. 
+
+We should **ignore** the getter method with the ```@JsonIgnore``` annotation:
 
 ```java
 @JsonIgnore
@@ -337,11 +401,15 @@ Now the output will be:
 }
 ```
 
-#### A little tricky code here!
+Great! But let's understand what just happened here!
 
-Jackson serializes the attribute **and** the **getter** method because we had a **custom getter method**. If you change the name of the getter method to the original, in this case ```getLanguage()```, then Jackson will just serialize the attribute!
+#### A little tricky code with Jackson here!
 
-Another tip is that you can use the ```@JsonIgnore``` in the getter method and in the attribute:
+Jackson serializes the attribute **and** the **getter** method because we had a **custom getter method**. Do you remember the **getUsedLanguage()** method? 
+
+If you change the name of the getter method to the **original**, in this case ```getLanguage()```, then Jackson will just serialize the attribute!
+
+Another tip here is that you can use the ```@JsonIgnore``` in the getter method and in the attribute:
 
 ```java
 public class Tutorial {
@@ -380,7 +448,7 @@ The output will be:
 }
 ```
 
-Notice that Jackson does not use the ```getLanguage()``` method to serialize the attribute to a JSON.
+Notice that Jackson does not use the ```getLanguage()``` method to serialize the attribute to a JSON. Sounds obvious, since we're ignoring the **setLanguage()** method!
 
 But if we change the getter method to a **custom name**:
 
@@ -399,7 +467,7 @@ public class Tutorial {
 }
 ```
 
-Then Jackson will serialize the getter method:
+Then Jackson will serialize the getter method, even if we're ignoring the **setLanguage()** method:
 
 ```json
 {
@@ -409,9 +477,9 @@ Then Jackson will serialize the getter method:
 }
 ```
 
-## 6 - Ordering Properties in JSON with Jackson Serialization
+## 7 - Ordering Properties in JSON with Jackson Serialization
 
-Do you remember our JSON object generated by Jackson serialization?
+Do you remember our JSON object generated by Jackson serialization? Let's see it again:
 
 ```json
 {
@@ -421,7 +489,7 @@ Do you remember our JSON object generated by Jackson serialization?
 }
 ```
 
-But imagine that for some reason you need this generated JSON ordered in this way:
+But imagine that for some reason you need this generated JSON **ordered** in this way:
 
 ```json
 {
@@ -431,7 +499,7 @@ But imagine that for some reason you need this generated JSON ordered in this wa
 }
 ```
 
-The attribute **title** coming before the attribute **id**
+The attribute **title** is coming before the attribute **id**
 
 To achieve this goal we should use the ```@JsonPropertyOrder``` annotation, passing the desired order for the attributes:
 
@@ -452,7 +520,9 @@ The result will be as we expected!
 }
 ```
 
-## 7 - Serializing the Raw Content with Jackson
+Pretty easy, isn't it?
+
+## 8 - Serializing the Raw Content in the JSON with Jackson
 
 Sometimes we have a content that should be serialized with its **raw value**. Imagine that in an object you have a **JavaScript** code that should be serialized with its **original content**. 
 
@@ -473,22 +543,22 @@ public class JavaScript {
 }
 ```
 
-Notice that we're using the ```@JsonRawContent``` in the **rawContent** attribute to keep its data original in the generated JSON.
+Notice that we're using the ```@JsonRawContent``` in the **rawContent** attribute to keep its original data in the generated JSON.
 
 The complete test could be:
 
 ```java
-	@Test
-	public void shouldSerializeThePropertyExactlyAsItIs() throws Exception {
-		JavaScript javascript = new JavaScript("JavaScript", 
-				"function name() {return \"JavaScript Jasmine Framework\"}", 
-				"function name() {return \"JavaScript Jasmine Framework\"}");
-		
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(javascript);
-		
-		System.out.println(prettyJson);
-	}
+@Test
+public void shouldSerializeThePropertyExactlyAsItIs() throws Exception {
+	JavaScript javascript = new JavaScript("JavaScript", 
+			"function name() {return \"JavaScript Jasmine Framework\"}", 
+			"function name() {return \"JavaScript Jasmine Framework\"}");
+	
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(javascript);
+	
+	System.out.println(prettyJson);
+}
 ```
 
 And the output will be:
@@ -501,13 +571,13 @@ And the output will be:
 }
 ```
 
-Notice that the **raw value** was kept as the **original value**. Keep in mind that this annotation could generate an invalid JSON
+Notice that the **raw value** was kept as the **original value**. Keep in mind that this annotation could generate an invalid JSON, because it will keep the original content, that could have a not valid JSON.
 
-## 8 - Serializing The Entire Object with a Custom Value with Jackson
+## 9 - Serializing The Entire JSON Object with a Custom Value with Jackson
 
 Sometimes we have the following challenge:
 
-> The object being serialized by Jackson should generate a **custom JSON**, defined previously
+> The object being serialized by Jackson should generate a **custom JSON**, defined **previously**
 
 To get this challenge clear, let's start by creating a **Customer** class:
 
@@ -523,6 +593,7 @@ public class Customer {
 		this.name = name;
 	}
 	
+	//getters and setters as usual
 }
 ```
 
@@ -569,7 +640,7 @@ The result will be:
 "{'custom_id\":1,\"custom_name\":1 - Alexandre Gama}"
 ```
 
-## 9 - Serializing a JSON Object with a Root
+## 10 - Serializing a JSON Object with a Root with Jackson
 
 Imagine that we have the following JSON object:
 
@@ -700,9 +771,7 @@ And the final result will be:
 
 Great!
 
-## 10 - JSON Custom Serialization with Jackson
-
-
+## 11 - JSON Custom Serializer with Jackson
 
 ```java
 public class Conference {
@@ -809,7 +878,7 @@ The result will be:
 }
 ```
 
-## Serializing HashMap into JSON Objects with Jackson
+## 12 - Serializing HashMap into JSON Objects with Jackson
 
 ```java
 public class Conference {
@@ -875,6 +944,12 @@ But if we want to have each key and value as a line in the main JSON?
 
 We just need to use the @JsonAnyGetter annotation
 
-## Deserializing a JSON Object when it doesn't Match the Java Object
+## 13 - Ignoring Properties in the JSON with Jackson
+
+@JsonIgnoreProperties
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+
+## 14 - Deserializing a JSON Object when it doesn't Match the Java Object
 
 @JsonCreator
