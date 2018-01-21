@@ -14,17 +14,17 @@ public class CustomDateSerializer extends StdSerializer<LocalDate> {
 	
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
+	//This Default constructor is required by Jackson
 	public CustomDateSerializer() {
-		this(null, false);
+		this(null);
 	}
 
-	protected CustomDateSerializer(Class<?> t, boolean dummy) {
-		super(t, dummy);
+	protected CustomDateSerializer(Class<LocalDate> date) {
+		super(date);
 	}
 
 	@Override
 	public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		
 		String formattedDate = formatter.format(value);
 		
 		gen.writeString(formattedDate);

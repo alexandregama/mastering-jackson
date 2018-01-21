@@ -773,6 +773,10 @@ Great!
 
 ## 11 - JSON Custom Serializer with Jackson
 
+In this example, we're going to see the **Conference** class that has a **LocalDate**, from Java 8, to be serialized.
+
+Let's create the class:
+
 ```java
 public class Conference {
 
@@ -787,22 +791,23 @@ public class Conference {
 		this.name = name;
 		this.date = date;
 	}
-
+ 
+    //getters and setters as usual
 }
 ```
 
-A simple test:
+It's time to create a method do **serialize** into JSON a **Conference** object:
 
 ```java
-	@Test
-	public void shouldSerializeWithACustomDatePattern() throws Exception {
-		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String prettyJson = mapper.writeValueAsString(conference);
-		
-		System.out.println(prettyJson);		
-	}
+@Test
+public void shouldSerializeWithACustomDatePattern() throws Exception {
+	Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+	
+	ObjectMapper mapper = new ObjectMapper();
+	String prettyJson = mapper.writeValueAsString(conference);
+	
+	System.out.println(prettyJson);		
+}
 ```
 
 The result will be:
@@ -828,7 +833,35 @@ The result will be:
 }
 ```
 
-Creating the **CustomDateSerializer**
+So, as you can see, Jackson tries its best when serializing a LocalDate into a JSON object. But the result may not be as you was expecting:
+
+```json
+"monthValue" : 11,
+"dayOfMonth" : 20,
+"dayOfYear" : 324,
+"dayOfWeek" : "TUESDAY",
+"leapYear" : false
+```
+
+In our case, we'd like to have a data being printed out like this:
+
+```json
+"date" : "2018-11-20"
+```
+
+To reach this goal we can create a Custom Serializer, to teach to Jackson how a data should be serialized.
+
+#### Creating a CustomDateSerializer
+
+It's time to create the **CustomDateSerializer**. This class should:
+
+- Extends the abstract class **StdSerializer**
+- Implements the **serialize** method, that will receive the **LocalDate** to be formatted
+- Overrides 2 **constructors** from the abstract class
+
+The abstract class **StdSerializer** is the recommend class to create Standard and Custom serializers. Many important Jackson's classes extends this class, like **JsonValueSerializer**, **ByteArraySerializer**, **RawSerializer** and much more!
+
+Let's jump into code:
 
 ```java
 public class CustomDateSerializer extends StdSerializer<LocalDate> {
@@ -838,16 +871,15 @@ public class CustomDateSerializer extends StdSerializer<LocalDate> {
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	public CustomDateSerializer() {
-		this(null, false);
+		this(null);
 	}
 
-	protected CustomDateSerializer(Class<?> t, boolean dummy) {
-		super(t, dummy);
+	protected CustomDateSerializer(Class<LocalDate> date) {
+		super(date);
 	}
 
 	@Override
-	public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		
+	public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider) throws IOException {		
 		String formattedDate = formatter.format(value);
 		
 		gen.writeString(formattedDate);
@@ -856,7 +888,11 @@ public class CustomDateSerializer extends StdSerializer<LocalDate> {
 }
 ```
 
-Let's use the new Custom Serializer
+The code is simple. As you can see, we just used the **DateTimeFormatter** to format the **LocalDate** object. 
+
+After that, we just need to call the **writeString()** method that will generate the JSON with the formatted date.
+
+Now it's time to use the new Custom Serializer! To do that, we should use the ```@JsonSerialize``` annotation
 
 ```java
 public class Conference {
@@ -878,7 +914,62 @@ The result will be:
 }
 ```
 
+#### Custom Serializer on the Class
+
+You can create a Custom Serializer to be used by the class, not just by the attribute.
+
+Now, we;d like to generate the following JSON object when serializing a **Conference** object:
+
+```json
+{
+  "id" : 10,
+  "name" : "JavaOne"
+}
+```
+
+The Custom Serializer will have the following code:
+
+```java
+public class ConferenceCustomFieldsSerializer extends StdSerializer<Conference> {
+
+	//This Default constructor is required by Jackson
+	public ConferenceCustomFieldsSerializer() {
+		this(null);
+	}
+	
+	protected ConferenceCustomFieldsSerializer(Class<Conference> conference) {
+		super(conference);
+	}
+
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void serialize(Conference value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+		gen.writeStartObject();
+		gen.writeNumberField("id", value.getId());
+		gen.writeStringField("name", value.getName());
+		gen.writeEndObject();
+	}
+
+}
+```
+
+As you can see, we used a few methods from the **JsonGenerator** object.
+
+Now we just need to use this custom serializer on the class, like this:
+
+```java
+@JsonSerialize(using = ConferenceCustomFieldsSerializer.class)
+public class Conference {
+}
+```
+
+That's it!
+
+
 ## 12 - Serializing HashMap into JSON Objects with Jackson
+
+As you have seen in the previous example, let's use the **Conference** class again, but now with the attribute **presentations**, that is a **HashMap**:
 
 ```java
 public class Conference {
@@ -892,7 +983,7 @@ public class Conference {
 }
 ```
 
-The simple test:
+The simple test to serialize a **Conference** object into a JSON could be:
 
 ```java
 	@Test
@@ -912,7 +1003,7 @@ The simple test:
 	}
 ```
 
-And the result:
+And the result will be the following JSON being generated:
 
 ```json
 {
@@ -929,7 +1020,7 @@ And the result:
 
 Jackson will serialize a Java Map by default :)
 
-But if we want to have each key and value as a line in the main JSON?
+But if we want to have each key and value as a line in the main JSON, like this?
 
 ```json
 {
@@ -942,13 +1033,115 @@ But if we want to have each key and value as a line in the main JSON?
 }
 ```
 
-We just need to use the @JsonAnyGetter annotation
+Then, we just need to use the ```@JsonAnyGetter``` annotation in the **Map** attribute:
+
+```java
+@JsonAnyGetter
+public Map<String, String> getPresentations() {
+	return presentations;
+}
+```
+
+And the result will be the JSON object with each key and value being a new line.
+
+That's it!
 
 ## 13 - Ignoring Properties in the JSON with Jackson
 
-@JsonIgnoreProperties
+Sometimes you want to ignore a few Properties to not being serialized by Jackson into a JSON.
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+Let's create a class **Course**:
+
+```java
+public class Course {
+
+	private Long id;
+	
+	private String title;
+	
+	private String language;
+	
+	private String category;
+	
+	private LocalDate date;
+	
+	public Course(Long id, String title, String language, String category, LocalDate date) {
+		this.id = id;
+		this.title = title;
+		this.language = language;
+		this.category = category;
+		this.date = date;
+	}
+    
+    //getters and setters as usual
+}
+```
+
+Now, we have the test to serialize a **Course** object into a JSON object:
+
+```java
+@Test
+public void shouldIgnorePropertiesWithJacksonWhenSerializingToJSON() throws Exception {
+	Course course = new Course(5L, "Spring 5 - REST API and Security", "Framework", "Java", LocalDate.of(2018, 02, 20));
+	
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(course);
+	
+	System.out.println(prettyJson);
+}
+```
+
+The result will be the following JSON:
+
+```json
+{
+  "id" : 5,
+  "title" : "Spring 5 - REST API and Security",
+  "language" : "Framework",
+  "category" : "Java",
+  "date" : {
+    "year" : 2018,
+    "month" : "FEBRUARY",
+    "chronology" : {
+      "id" : "ISO",
+      "calendarType" : "iso8601"
+    },
+    "era" : "CE",
+    "monthValue" : 2,
+    "dayOfMonth" : 20,
+    "dayOfYear" : 51,
+    "dayOfWeek" : "TUESDAY",
+    "leapYear" : false
+  }
+}
+```
+
+But now we'd like to ignore the **Category** and **Date** properties. Let's use the ```@JsonIgnoreProperties``` on the class to indicate this properties:
+
+```java
+@JsonIgnoreProperties({"category", "date"})
+public class Course {
+}
+```
+
+If you run the test again, you're going to see the following result:
+
+```json
+{
+  "id" : 5,
+  "title" : "Spring 5 - REST API and Security",
+  "language" : "Framework"
+}
+```
+
+[Remember]() that we could also use the ```@JsonIgnore``` on the property directly:
+
+```java
+@JsonIgnore
+private String language;
+```
+
+That's it!
 
 ## 14 - Deserializing a JSON Object when it doesn't Match the Java Object
 

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mastering.jackson.tutorial.model.Category;
 import com.mastering.jackson.tutorial.model.Conference;
+import com.mastering.jackson.tutorial.model.Course;
 import com.mastering.jackson.tutorial.model.Customer;
 import com.mastering.jackson.tutorial.model.Framework;
 import com.mastering.jackson.tutorial.model.JavaScript;
@@ -147,6 +148,16 @@ public class SimpleSerializationTest {
 		String prettyJson = prettyPrinter.writeValueAsString(conference);
 		
 		System.out.println(prettyJson);		
+	}
+	
+	@Test
+	public void shouldIgnorePropertiesWithJacksonWhenSerializingToJSON() throws Exception {
+		Course course = new Course(5L, "Spring 5 - REST API and Security", "Framework", "Java", LocalDate.of(2018, 02, 20));
+		
+		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		String prettyJson = prettyPrinter.writeValueAsString(course);
+		
+		System.out.println(prettyJson);
 	}
 	
 }
