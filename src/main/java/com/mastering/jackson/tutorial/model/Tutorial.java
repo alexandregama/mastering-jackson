@@ -1,9 +1,7 @@
 package com.mastering.jackson.tutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 public class Tutorial {
 
 	private Long id;
@@ -11,6 +9,9 @@ public class Tutorial {
 	private String title;
 
 	private String language;
+
+	// Required by Jackson when Deserializing the JSON Object
+	public Tutorial() {}
 
 	public Tutorial(Long id, String title, String language) {
 		this.id = id;
@@ -22,6 +23,7 @@ public class Tutorial {
 		return id;
 	}
 
+	@JsonSetter("special_id")
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -30,16 +32,22 @@ public class Tutorial {
 		return title;
 	}
 
+	@JsonSetter("special_title")
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public String getUsedLanguage() {
+	public String getLanguage() {
 		return language;
 	}
 
 	public void setLanguage(String language) {
 		this.language = language;
+	}
+
+	@Override
+	public String toString() {
+		return "Tutorial [id=" + id + ", title=" + title + ", language=" + language + "]";
 	}
 
 }

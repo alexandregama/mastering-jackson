@@ -2,6 +2,7 @@ package com.mastering.jackson.tutorial.one;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,18 @@ public class SimpleSerializationTest {
 		System.out.println(json);
 
 		assertEquals("{\"id\":1,\"title\":\"CDI - How to use Decorators\",\"language\":\"Java\"}", json);
+	}
+
+	@Test
+	public void shouldSerializeAnObjectIntoAJSONWithJacksonFile() throws Exception {
+		Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(new File("tutorial.json"), tutorial);
+
+//		System.out.println(json);
+
+//		assertEquals("{\"id\":1,\"title\":\"CDI - How to use Decorators\",\"language\":\"Java\"}", json);
 	}
 
 	@Test
