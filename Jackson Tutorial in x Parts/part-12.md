@@ -1,6 +1,6 @@
-## 12 - Serializing HashMap into JSON Objects with Jackson
+# 12 - Serializing HashMap into JSON Objects with Jackson
 
-As you have seen in the previous example, let's use the **Conference** class again, but now with the attribute **presentations**, that is a **HashMap**:
+As you have seen in the [previous tutorial](), let's use the **Conference** class again, but now with the attribute **presentations**, that is a **HashMap**:
 
 ```java
 public class Conference {
@@ -17,21 +17,21 @@ public class Conference {
 The simple test to serialize a **Conference** object into a JSON could be:
 
 ```java
-	@Test
-	public void shouldSerializeAHashMapObjectIntoAJson() throws Exception {
-		Map<String, String> presentations = new HashMap<>();
-		presentations.put("Java Framework", "JUnit 5 - New Architecture");
-		presentations.put("Java Language", "Java 9 - Working with Modules");
-		presentations.put("JVM", "How to use GC in a smart way");
+@Test
+public void shouldSerializeAHashMapObjectIntoAJson() throws Exception {
+	Map<String, String> presentations = new HashMap<>();
+	presentations.put("Java Framework", "JUnit 5 - New Architecture");
+	presentations.put("Java Language", "Java 9 - Working with Modules");
+	presentations.put("JVM", "How to use GC in a smart way");
 
-		Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
-		conference.setPresentations(presentations);
+	Conference conference = new Conference(10l, "JavaOne", LocalDate.of(2018, 11, 20));
+	conference.setPresentations(presentations);
 
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(conference);
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(conference);
 
-		System.out.println(prettyJson);		
-	}
+	System.out.println(prettyJson);		
+}
 ```
 
 And the result will be the following JSON being generated:
@@ -51,7 +51,7 @@ And the result will be the following JSON being generated:
 
 Jackson will serialize a Java Map by default :)
 
-But if we want to have each key and value as a line in the main JSON, like this?
+But if we want to have **each key and value as a line** in the main JSON, like this?
 
 ```json
 {

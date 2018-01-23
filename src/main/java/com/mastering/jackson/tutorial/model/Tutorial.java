@@ -1,16 +1,17 @@
 package com.mastering.jackson.tutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 public class Tutorial {
 
 	private Long id;
-	
+
 	private String title;
-	
-	@JsonProperty("my_language")
+
 	private String language;
-	
+
 	public Tutorial(Long id, String title, String language) {
 		this.id = id;
 		this.title = title;
@@ -40,5 +41,5 @@ public class Tutorial {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
-	
+
 }

@@ -1,6 +1,8 @@
-## 6 - Serializing the Java Object into JSON using Attributes with Jackson
+# 6 - Serializing Java Object into JSON using Fields with Jackson
 
-Jackson uses **getter** methods by default to serialize objects into JSON! To change this default behavior we just need to use the ```@JsonProperty``` annotation:
+As we've seen in the [previous Jackson tutorial](), Jackson uses **getter** methods by default to serialize objects into JSON!
+
+To change this default behavior we just need to use the ```@JsonProperty``` annotation:
 
 Let's configure the **language** attribute to be used in the serialization and let's give it a **custom name**:
 
@@ -50,11 +52,11 @@ Now the output will be:
 
 Great! But let's understand what just happened here!
 
-#### A little tricky code with Jackson here!
+## A little tricky code with Jackson!
 
-Jackson serializes the attribute **and** the **getter** method because we had a **custom getter method**. Do you remember the **getUsedLanguage()** method?
+Jackson serializes the attribute **and** the **getter** method because we have a **custom getter method**. Do you remember the **getUsedLanguage()** method?
 
-If you change the name of the getter method to the **original**, in this case ```getLanguage()```, then Jackson will just serialize the attribute!
+If you change the name of the getter method to the **original** name, in this case ```getLanguage()```, then Jackson will just serialize the attribute!
 
 Another tip here is that you can use the ```@JsonIgnore``` in the getter method and in the attribute:
 
@@ -67,7 +69,7 @@ public class Tutorial {
 }
 ```
 
-#### Another Tricky Situation with @JsonIgnore
+## Another Tricky Situation with @JsonIgnore
 
 If we have the **getter** and **setter** methods following the correct name of the attribute and use the ```@JsonIgnore``` in the **setter** method like this:
 
@@ -123,3 +125,80 @@ Then Jackson will serialize the getter method, even if we're ignoring the **setL
   "usedLanguage" : "Java"
 }
 ```
+
+## Configuring Class to Serialize Just Fields with Jackson
+
+[As you know](), Jackson uses **getter** methods to serialize Java objects into a JSON. Did you try to remove all getter methods?
+
+Let's try it out:
+
+```java
+public class Tutorial {
+
+	private Long id;
+
+	private String title;
+
+	private String language;
+
+	public Tutorial(Long id, String title, String language) {
+		this.id = id;
+		this.title = title;
+		this.language = language;
+	}
+
+}
+```
+
+The unit test to serialize a Tutorial object into a JSON:
+
+```java
+@Test
+public void shouldSerializeJustFieldsWithJackson() throws Exception {
+	Tutorial tutorial = new Tutorial(1L, "CDI - How to use Decorators", "Java");
+
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(tutorial);
+
+	System.out.println(prettyJson);
+}
+```
+
+If you execute this code, an error will be thrown in our face:
+
+```
+com.fasterxml.jackson.databind.JsonMappingException: No serializer found for class com.mastering.jackson.tutorial.model.Tutorial and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) )
+```
+
+Sounds obvious, since we removed all the **getter** methods!
+
+To serialize the object into a JSON using just the **fields** we can use the annotation ```@JsonAutoDetect``` on the class. This annotation allows us to configure which **Visibility** should be used by Jackson.
+
+There is the Enum **Visibility** with a few visibility options:
+
+- ANY
+- NON_PRIVATE
+- PROTECTED_AND_PUBLIC
+- PUBLIC_ONLY
+- NONE
+- DEFAULT
+
+We're going to use the **ANY** and **NONE** options for **fieldVisibility** and **getterVisibility** respectively:
+
+```java
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
+public class Tutorial {
+}
+```
+
+If you run the code again:
+
+```json
+{
+  "id" : 1,
+  "title" : "CDI - How to use Decorators",
+  "language" : "Java"
+}
+```
+
+Great! Everything is working again and you can use just **Fields** in the Jackson serialization!

@@ -1,4 +1,4 @@
-## 4 - Serializing Composed Java Objects with Jackson
+# 4 - Serializing Composed Java Objects with Jackson
 
 Java is an Object-Oriented Programming Language and one of the most used feature is **Object Composition**.
 
@@ -73,4 +73,6 @@ If you run this code, the output will be:
 }
 ```
 
-Awesome! Jackson can serialize a composed object by default! Let's see how to change a few default behaviours in the next posts!  
+Awesome!
+
+Jackson can serialize a composed object by default! Let's see how to change a few default behaviours in the next posts!

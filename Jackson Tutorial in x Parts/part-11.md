@@ -1,4 +1,4 @@
-## 11 - JSON Custom Serializer with Jackson
+# 11 - JSON Custom Serializer with Jackson
 
 In this example, we're going to see the **Conference** class that has a **LocalDate**, from Java 8, to be serialized.
 
@@ -78,7 +78,7 @@ In our case, we'd like to have a data being printed out like this:
 
 To reach this goal we can create a Custom Serializer, to teach to Jackson how a data should be serialized.
 
-#### Creating a CustomDateSerializer
+## Creating a CustomDateSerializer
 
 It's time to create the **CustomDateSerializer**. This class should:
 
@@ -141,7 +141,7 @@ The result will be:
 }
 ```
 
-#### Custom Serializer on the Class
+## Custom Serializer on the Class
 
 You can create a Custom Serializer to be used by the class, not just by the attribute.
 

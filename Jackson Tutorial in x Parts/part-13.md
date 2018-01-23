@@ -1,4 +1,4 @@
-## 13 - Ignoring Properties in the JSON with Jackson
+# 13 - Ignoring Properties in the JSON with Jackson
 
 Sometimes you want to ignore a few Properties to not being serialized by Jackson into a JSON.
 

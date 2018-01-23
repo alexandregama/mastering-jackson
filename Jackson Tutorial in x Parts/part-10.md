@@ -1,4 +1,4 @@
-## 10 - Serializing a JSON Object with a Root with Jackson
+# 10 - Serializing a JSON Object with a Root with Jackson
 
 Imagine that we have the following JSON object:
 
@@ -74,15 +74,15 @@ public class Category {
 To generate the JSON with Jackson, let's create the following test:
 
 ```java
-	@Test
-	public void shouldSerializeTheJSONObjectWithACustomRootName() throws Exception {
-		VideoCourse videoCourse = new VideoCourse(1L, "Java Jackson Framework", new Category("Java"));
+@Test
+public void shouldSerializeTheJSONObjectWithACustomRootName() throws Exception {
+	VideoCourse videoCourse = new VideoCourse(1L, "Java Jackson Framework", new Category("Java"));
 
-		ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
-		String prettyJson = prettyPrinter.writeValueAsString(videoCourse);
+	ObjectWriter prettyPrinter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+	String prettyJson = prettyPrinter.writeValueAsString(videoCourse);
 
-		System.out.println(prettyJson);
-	}
+	System.out.println(prettyJson);
+}
 ```
 
 Without surprises, the result should be:

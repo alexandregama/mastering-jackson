@@ -1,4 +1,4 @@
-## 9 - Serializing The Entire JSON Object with a Custom Value with Jackson
+# 9 - Serializing The Entire JSON Object with a Custom Value with Jackson
 
 Sometimes we have the following challenge:
 

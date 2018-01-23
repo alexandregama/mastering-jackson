@@ -1,4 +1,4 @@
-## 8 - Serializing the Raw Content in the JSON with Jackson
+# 8 - Serializing the Raw Content in the JSON with Jackson
 
 Sometimes we have a content that should be serialized with its **raw value**. Imagine that in an object you have a **JavaScript** code that should be serialized with its **original content**.
 
