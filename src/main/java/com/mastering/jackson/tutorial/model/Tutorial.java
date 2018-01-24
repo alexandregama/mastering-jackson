@@ -1,6 +1,7 @@
 package com.mastering.jackson.tutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Tutorial {
 
@@ -13,7 +14,8 @@ public class Tutorial {
 	// Required by Jackson when Deserializing the JSON Object
 	public Tutorial() {}
 
-	public Tutorial(Long id, String title, String language) {
+	@JsonCreator
+	public Tutorial(@JsonProperty("id") Long id, @JsonProperty("special_title") String title, @JsonProperty("language") String language) {
 		this.id = id;
 		this.title = title;
 		this.language = language;
@@ -23,7 +25,6 @@ public class Tutorial {
 		return id;
 	}
 
-	@JsonSetter("special_id")
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -32,7 +33,6 @@ public class Tutorial {
 		return title;
 	}
 
-	@JsonSetter("special_title")
 	public void setTitle(String title) {
 		this.title = title;
 	}
