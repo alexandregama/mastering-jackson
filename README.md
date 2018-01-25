@@ -1,2 +1,0 @@
-# mastering-jackson
-Mastering Jackson
